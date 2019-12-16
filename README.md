@@ -23,3 +23,5 @@ printf("%f %f %f %f\n", b.x, b.y, b.w, b.h)
 
 This is due to design choices on my part of not wanting to restart the network for efficiency purposes.
 
+You will also need to create a "photos" directory to store the images
+
