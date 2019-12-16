@@ -25,3 +25,4 @@ This is due to design choices on my part of not wanting to restart the network f
 
 You will also need to create a "photos" directory to store the images
 
+* In my tests of running this on an Ubuntu 18.0.4 machine with an nvidia K2000d, I can theoretically call it up to 20 times a second
