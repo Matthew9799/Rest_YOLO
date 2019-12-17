@@ -12,10 +12,39 @@ class DetectorController {
 
     @Synchronized
     def detectObjects() {
-        def jsonSlurper = new JsonSlurper()
-        def data = jsonSlurper.parseText(params.sendData)
+        String address = "";
 
-        download(data.link)
+        params.each {
+            String val = it.value.toString()
+            String key = it.key.toString()
+            //possible candidate
+            if(val.contains("png") || val.contains("jpg") || val.contains("jpeg")) {
+                if (val.contains("http")) {
+                    address = val
+                }
+            } else if(key.contains("png") || key.contains("jpg") || key.contains("jpeg")){
+                if (key.contains("http")) {
+                    address = key
+                }
+            }
+        }
+
+        if(address.contains("jpeg")) {
+            address = address.substring(address.indexOf("http"), address.indexOf("jpeg")+4)
+        } else if(address.contains("jpg")) {
+            address = address.substring(address.indexOf("http"), address.indexOf("jpg")+3)
+        } else {
+            address = address.substring(address.indexOf("http"), address.indexOf("png")+3)
+        }
+
+        println address
+        //something isn't right with received data
+        if(address.size() == 0) {
+            response.sendError(400)
+            return
+        }
+
+        download(address)
 
         if(process == null) { // launch network
             String homeDirectory = System.getProperty("user.home");
@@ -34,7 +63,7 @@ class DetectorController {
             writer = new BufferedWriter(new OutputStreamWriter(outputStream));
         }
 
-        writer.write("photos/${data.link.tokenize('/')[-1]}");
+        writer.write("photos/${data.tokenize('/')[-1]}");
         writer.write(System.getProperty("line.separator"));
         writer.flush();
 
@@ -71,7 +100,7 @@ class DetectorController {
             break;
         }
         json += ']'
-        print json
+        println json
         def results = new JsonSlurper().parseText(json)
         render results;
     }
