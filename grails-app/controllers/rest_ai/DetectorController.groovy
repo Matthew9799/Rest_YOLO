@@ -63,7 +63,7 @@ class DetectorController {
             writer = new BufferedWriter(new OutputStreamWriter(outputStream));
         }
 
-        writer.write("photos/${data.tokenize('/')[-1]}");
+        writer.write("photos/${address.tokenize('/')[-1]}");
         writer.write(System.getProperty("line.separator"));
         writer.flush();
 
