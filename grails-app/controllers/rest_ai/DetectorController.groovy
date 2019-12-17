@@ -37,7 +37,6 @@ class DetectorController {
             address = address.substring(address.indexOf("http"), address.indexOf("png")+3)
         }
 
-        println address
         //something isn't right with received data
         if(address.size() == 0) {
             response.sendError(400)
@@ -87,6 +86,12 @@ class DetectorController {
                     }
 
                     String item = defaultTokenizer.nextToken();
+
+                    //iterate through larger items
+                    while(!item.contains(":")) {
+                        item += " "+defaultTokenizer.nextToken();
+                    }
+
                     item = item.substring(0, item.size() - 1); // trim off colon
 
                     json += '{ "' + item + '": "' + defaultTokenizer.nextToken() + '",\n'; // builds item and prob
@@ -100,7 +105,6 @@ class DetectorController {
             break;
         }
         json += ']'
-        println json
         def results = new JsonSlurper().parseText(json)
         render results;
     }
