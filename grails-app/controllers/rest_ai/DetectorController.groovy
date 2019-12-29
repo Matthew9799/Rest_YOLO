@@ -2,6 +2,8 @@ package rest_ai
 import groovy.json.*
 import groovy.json.JsonSlurper
 import groovy.transform.Synchronized
+import java.util.concurrent.*;
+import java.io.InputStream;
 
 class DetectorController {
     static Process process = null;
@@ -9,10 +11,14 @@ class DetectorController {
     static BufferedWriter writer;
     static OutputStream outputStream;
     static InputStream inputStream;
+    Semaphore sem = null;
 
-    @Synchronized
     def detectObjects() {
         String address = "";
+
+        if(sem == null) {
+            sem = new Semaphore(1, true);
+        }
 
         params.each {
             String val = it.value.toString()
@@ -43,7 +49,7 @@ class DetectorController {
             return
         }
 
-        download(address)
+        download(address) // possible namespace collision with data
 
         if(process == null) { // launch network
             String homeDirectory = System.getProperty("user.home");
@@ -61,6 +67,8 @@ class DetectorController {
             reader = new BufferedReader(new InputStreamReader(inputStream));
             writer = new BufferedWriter(new OutputStreamWriter(outputStream));
         }
+
+        sem.acquire(); // get mutex
 
         writer.write("photos/${address.tokenize('/')[-1]}");
         writer.write(System.getProperty("line.separator"));
@@ -104,6 +112,8 @@ class DetectorController {
             }
             break;
         }
+
+        sem.release();
         json += ']'
         def results = new JsonSlurper().parseText(json)
         render results;
